@@ -90,7 +90,7 @@ def parse_payload(item_list, counter, payload):
         response_code = payload['response_code']
         if response_code == 0 and 'data' in payload:
             if delay:
-                time.sleep(random.uniform(0, 3))
+                time.sleep(random.uniform(0, 2))
             data = payload['data']
             if data:
                 for idx, item in enumerate(data):
@@ -117,7 +117,7 @@ def parse_ioc(threat_id, ctime, ioc_count, item_list):
         ioc_url = url + "v5/node/user/article/getIocInfo?page=%s&pagesize=5&type=ip&shortMessageId=%s" % (i, threat_id)
         # print ("threat_id:%s, page:%s" % (threat_id, i))
         if delay:
-            time.sleep(random.uniform(0, 3))
+            time.sleep(random.uniform(0, 2))
         ioc_res = requests.get(ioc_url, headers=headers, cookies=cookies)
         ioc_payload = json.loads(ioc_res.text)
         # print(ioc_payload)

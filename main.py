@@ -39,7 +39,7 @@ def on_conflict_do_update(sess, item):
     sess.commit()
 
 
-if __name__ == '__main__':
+def main():
     env = Env()
     env.read_env()
     deploy_mode = env.str('DEPLOY_MODE', 'development')
@@ -64,3 +64,7 @@ if __name__ == '__main__':
     for item in item_list:
         print(item)
         on_conflict_do_update(session, item)
+
+
+if __name__ == '__main__':
+    main()
