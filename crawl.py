@@ -90,7 +90,7 @@ def parse_payload(item_list, counter, payload):
         response_code = payload['response_code']
         if response_code == 0 and 'data' in payload:
             if delay:
-                time.sleep(random.uniform(0, 1))
+                time.sleep(random.uniform(0, 3))
             data = payload['data']
             if data:
                 for idx, item in enumerate(data):
@@ -98,6 +98,10 @@ def parse_payload(item_list, counter, payload):
                                          item['articleInfo']['threatId'], item['articleInfo']['lastUtime'])
                     counter += 1
                     if item['articleInfo']['iocCount'] > 0:
+                        threat_id = item['articleInfo']['threatId']
+                        ioc_count = item['articleInfo']['iocCount']
+                        print('ioc_count: %s' % ioc_count)
+                        print('threat_id: %s' % threat_id)
                         parse_ioc(int(item['articleInfo']['threatId']), item['articleInfo']['lastUtime'],
                                   item['articleInfo']['iocCount'], item_list)
                     if idx == len(data) - 1:
@@ -108,10 +112,12 @@ def parse_payload(item_list, counter, payload):
 
 
 def parse_ioc(threat_id, ctime, ioc_count, item_list):
-    for i in range(math.ceil(ioc_count / 5)):
+    # print("total_ioc_page:%s"%math.ceil(ioc_count / 5))
+    for i in range(1, math.ceil(ioc_count / 5) + 1):
         ioc_url = url + "v5/node/user/article/getIocInfo?page=%s&pagesize=5&type=ip&shortMessageId=%s" % (i, threat_id)
+        # print ("threat_id:%s, page:%s" % (threat_id, i))
         if delay:
-            time.sleep(random.uniform(0, 1))
+            time.sleep(random.uniform(0, 3))
         ioc_res = requests.get(ioc_url, headers=headers, cookies=cookies)
         ioc_payload = json.loads(ioc_res.text)
         # print(ioc_payload)
@@ -122,15 +128,16 @@ def parse_ioc(threat_id, ctime, ioc_count, item_list):
                 if details:
                     for detail in details:
                         item_list.append(
-                            item(detail['ioc'], threat_id, int(detail['domainCount']), int(detail['tagCount']),
-                                 int(detail['itelCount']), int(detail['judge']), detail['poc'], ctime, 1))
+                            item(detail['ioc'], threat_id, parse_to_int(detail['domainCount']),
+                                 parse_to_int(detail['tagCount']),
+                                 parse_to_int(detail['itelCount']), int(detail['judge']), detail['poc'], ctime, 1))
 
 
 def find_ip_from_content(content, item_list, threat_id, ctime):
     ip_list = re.findall(r'[0-9]+(?:\.[0-9]+){3}', content)
     if ip_list:
         for ip in ip_list:
-            item_list.append(item(ip, threat_id, -1, -1, -1, -1, False, ctime, 0))
+            item_list.append(item(ip, threat_id, -1, -1, -1, -1, False, ctime, -1))
     for separate_ip in item_list:
         if is_lan(separate_ip.ip) or not check_ip_valid(separate_ip.ip) or is_loopback(separate_ip.ip):
             item_list.remove(separate_ip)
@@ -149,6 +156,13 @@ def is_lan(ip):
         return ipaddress.ip_address(ip.strip()).is_private
     except Exception as e:
         return False
+
+
+def parse_to_int(string):
+    try:
+        return int(string)
+    except Exception as e:
+        return 1000
 
 
 def is_loopback(ip):
