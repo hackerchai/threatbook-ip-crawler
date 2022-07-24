@@ -98,10 +98,10 @@ def parse_payload(item_list, counter, payload):
                                          item['articleInfo']['threatId'], item['articleInfo']['lastUtime'])
                     counter += 1
                     if item['articleInfo']['iocCount'] > 0:
-                        threat_id = item['articleInfo']['threatId']
-                        ioc_count = item['articleInfo']['iocCount']
-                        print('ioc_count: %s' % ioc_count)
-                        print('threat_id: %s' % threat_id)
+                        #threat_id = item['articleInfo']['threatId']
+                        #ioc_count = item['articleInfo']['iocCount']
+                        #print('ioc_count: %s' % ioc_count)
+                        #print('threat_id: %s' % threat_id)
                         parse_ioc(int(item['articleInfo']['threatId']), item['articleInfo']['lastUtime'],
                                   item['articleInfo']['iocCount'], item_list)
                     if idx == len(data) - 1:
